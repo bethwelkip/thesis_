@@ -1,0 +1,26 @@
+*{
+    border-radius: 0%;
+    margin: 0;
+
+}
+.row{
+    background-color:blueviolet;
+    /* text-align: center; */
+}
+.nav{
+    background-color: aquamarine;
+    text-align: center;
+
+};
+#nav1{
+    margin-bottom: 0%;
+    padding-bottom: 0%;
+    border-bottom: 0ch;
+}
+#main_nav{
+    margin-top: 0%;
+    padding-top: 0%;
+    border-top: 0ch;
+    margin-bottom: 2%;
+}
+
