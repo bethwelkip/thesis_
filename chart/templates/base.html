@@ -1,0 +1,56 @@
+{% load bootstrap4 %}
+{% load static %}
+{%block title %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- {% load static %} -->
+    <title>Thesis</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="robots" content="index, follow">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="{%  static 'styles.css' %}">
+    <!-- <link rel="icon" href="{% static 'images/icon.ico' %}"> -->
+    <!-- to find location of static files :
+python manage.py findstatic --verbosity 2 css/styles.css
+-->
+    <nav>
+        <div class="nav" id="main_nav">
+            <div class="container-fluid">
+                <div class="nave">
+                    <!-- <img src="" alt="co_2 sensor" /> -->
+                    <h1>Kenalpha & Bethwel</h1>
+                    <h5>Indoor Ventilation Demo</h5>
+                </div>
+
+                <div class="nav justify-content-center" id="nav2">
+                    <ul class="nav nav-pills justify-content-center">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#"> About Project</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Last 2 Hours</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Today</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Yesterday</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+</head>
+{%endblock%}
+
+{% block content %}
+
+{%endblock%}
+{% block footer %}
+{% endblock %}
