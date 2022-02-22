@@ -40,17 +40,11 @@ def temperature(request, today = False, yesterday = False, two_hour = False):
     elif two_hour:
         raw_data = Measurements.get_all_time()
     elif yesterday:
-        raw_data = Measurements.get_all_time()
+        raw_data = Measurements.get_yesterday()
     else:
         raw_data = Measurements.get_two_hour()
 
-
-    # raw_data = Measurements.objects.order_by('time')
-    # raw_data1 = Temp.objects.order_by('-id')
-    # raw_data2 = Hum.objects.order_by('-id')
     label, gas, temp, hum = [],[],[],[]
-    # if len(raw_data)== 0:
-    #     initialize_db()
     print(len(raw_data))
     for i, dat in enumerate(raw_data[:min(len(raw_data), 100)]):
         lab = dat.date.strftime("%m/%-d/%Y, %H:%M:%S")
@@ -68,13 +62,6 @@ def update(request, co,temp,hum):
     co = int(co)
     new_measurement = Measurements(co2 = co, hum = hum, temp = temp)
     new_measurement.save()
-
-    # co2 = CO2(co2 = co)
-    # tem = Temp(date = now, temp=temp)
-    # humidity = Hum(date = now, hum=hum)
-    # humidity.save()
-    # co2.save()
-    # tem.save()
-
+    
     return render(request,'graph.html' )
    

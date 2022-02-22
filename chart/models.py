@@ -11,26 +11,27 @@ class Measurements(models.Model):
 
     @classmethod
     def get_two_hour(cls):
-        curr_day = datetime.datetime.today()
+        curr_day = datetime.datetime.today().astimezone(pytz.timezone("America/New_York"))
         curr_time = curr_day - datetime.timedelta(hours=2)
         objects = cls.objects.all()
-        data = [obj for obj in objects if obj.time > curr_time.time() and obj.date.day == curr_day.day and obj.date.year == curr_day.year and obj.date.month == curr_day.month ]
+        print(curr_time.time(), objects[0].time)
+        data = [obj for obj in objects if obj.time > curr_time.time() and obj.date == curr_time.date()]
         return  data
 
     @classmethod
     def get_today(cls):
-        curr_day = datetime.datetime.today()
-        curr_time = curr_day - datetime.timedelta(days=1)
+        curr_day = datetime.datetime.today().astimezone(pytz.timezone("America/New_York"))
+        curr_time = curr_day - datetime.timedelta(days=0)
         objects = cls.objects.all()
-        data = [obj for obj in objects if obj.time > curr_time.time() and obj.date.day == curr_day.day and obj.date.year == curr_day.year and obj.date.month == curr_day.month ]
+        data = [obj for obj in objects if obj.date == curr_time.date() ]
 
     @classmethod
     def get_yesterday(cls):
-        curr_day = datetime.datetime.today()
+        curr_day = datetime.datetime.today().astimezone(pytz.timezone("America/New_York"))
         curr_time = curr_day - datetime.timedelta(days=1)
         objects = cls.objects.all()
-        data = [obj for obj in objects if obj.time > curr_time.time() and obj.date.day == curr_day.day and obj.date.year == curr_day.year and obj.date.month == curr_day.month ]
-
+        data = [obj for obj in objects if obj.date == curr_time.date()]
+        return data
     @classmethod
     def get_all_time(cls):
         return cls.objects.all()
