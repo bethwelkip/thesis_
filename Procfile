@@ -1,0 +1,1 @@
+web: gunicorn thesis_web.wsgi

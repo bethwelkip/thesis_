@@ -42,7 +42,7 @@ def temperature(request, today = False, yesterday = False, two_hour = False):
     elif yesterday:
         raw_data = Measurements.get_yesterday()
     else:
-        raw_data = Measurements.get_two_hour()
+        raw_data = Measurements.get_all_time()
 
     label, gas, temp, hum = [],[],[],[]
     print(len(raw_data))
@@ -62,6 +62,6 @@ def update(request, co,temp,hum):
     co = int(co)
     new_measurement = Measurements(co2 = co, hum = hum, temp = temp)
     new_measurement.save()
-    
+
     return render(request,'graph.html' )
    
