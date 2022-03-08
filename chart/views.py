@@ -78,11 +78,14 @@ def temperature(request, today = False, yesterday = False, two_hour = False):
     if today:
         raw_data = Measurements.get_today()
     elif two_hour:
-        raw_data = Measurements.get_all_time()
+        raw_data = Measurements.get_two_hour()
     elif yesterday:
         raw_data = Measurements.get_yesterday()
     else:
         raw_data = Measurements.get_all_time()
+    if len(raw_data) == 0:
+        message = True
+        return render(request, 'graph.html', {'message': message})
 
     label, gas, temp, hum = [],[],[],[]
     print(len(raw_data))

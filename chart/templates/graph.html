@@ -3,15 +3,28 @@
 {% block content %}
 <div class="container" height="100%" width="100%">
     <div class='jumbotron'>
+        {% if message%}
+        <div class="alert alert-info">
+            <strong> Sorry :(</strong> Unfortunately, We have no data for this time period. Check back later :).
+        </div>
+        {% else %}
+
         {% autoescape off %}
         {{ graph_co }}
         {% endautoescape %}
+        {% endif %}
     </div>
 
     <div class='jumbotron'>
+        {% if message%}
+        <div class="alert alert-info">
+            <strong> Sorry :(</strong> Unfortunately, We have no data for this time period. Check back later :).
+        </div>
+        {% else %}
         {% autoescape off %}
         {{ graph}}
         {% endautoescape %}
+        {% endif %}
     </div>
 </div>
 {% endblock %}
