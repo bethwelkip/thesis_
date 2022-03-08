@@ -30,16 +30,22 @@ python manage.py findstatic --verbosity 2 css/styles.css
                 <div class="nav justify-content-center" id="nav2">
                     <ul class="nav nav-pills justify-content-center">
                         <li class="nav-item">
-                            <a class="nav-link active" href="#"> About Project</a>
+                            <!-- use class="nav-link active" to make link active -->
+                            <button type="button" class="btn btn-outline-info"><a class="nav-link"
+                                    href="{% url 'home' %}">
+                                    About Project</a></button>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Last 2 Hours</a>
+                            <button type="button" class="btn btn-outline-success"> <a class="nav-link secondary"
+                                    href="{% url 'specific' val=100 %}">Last 2 Hours</a></button>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Today</a>
+                            <button type="button" class="btn btn-outline-info"><a class="nav-link"
+                                    href="{% url 'specific' val=110 %}">Today</a></button>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Yesterday</a>
+                            <button type="button" class="btn btn-outline-warning"><a class="nav-link"
+                                    href="{% url 'specific' val=101 %}">Yesterday</a></button>
                         </li>
                     </ul>
                 </div>

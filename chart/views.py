@@ -60,10 +60,21 @@ def generate_csv():
 
 
 
+def specific(request, val):
+    today, yesterday, two_hour = False, False, False
+    if val == 100:
+        two_hour = True
+    elif val == 110:
+        today = True
+    elif val == 101:
+        yesterday = True
+    else:
+        pass
 
+    return temperature(request,today, yesterday, two_hour)
 
 def temperature(request, today = False, yesterday = False, two_hour = False):
-    # generate_csv()
+    print("two hour: ", two_hour, "yesterday: ", yesterday, "today: ", today)
     if today:
         raw_data = Measurements.get_today()
     elif two_hour:
@@ -77,8 +88,9 @@ def temperature(request, today = False, yesterday = False, two_hour = False):
     print(len(raw_data))
     j = 0
     for i, dat in enumerate(raw_data[:min(len(raw_data), 100)]):
-        lab = dat.date + datetime.timedelta(days=j)
-        # lab = lab.strftime("%m/%-d/%Y, %H:%M:%S")
+        lab = pd.to_datetime(dat.date.strftime("%m/%-d/%Y,") +' '+dat.time.strftime("%H:%M:%S"))+ datetime.timedelta(days=j)
+        #dat.date + datetime.timedelta(days=j)
+        print(pd.to_datetime(dat.date.strftime("%m/%-d/%Y,") +' '+dat.time.strftime("%H:%M:%S")))
         hum.append(float(dat.hum))
         gas.append(float(dat.co2))
         label.append(lab)#""+str(j)+dat.date.strftime("%m/%-d/%Y,")+""+dat.time.strftime("%H:%M:%S"))
@@ -102,7 +114,7 @@ def temperature(request, today = False, yesterday = False, two_hour = False):
 
     
     graph = px.line(x  = label, y = hum)
-    print(graph)
+    # print(graph)
     print(len(gas), len(label))
     return render(request, 'graph.html', {'graph_co': graph_co, 'graph': graph_2, 'label':label,'gas':gas, 'temp':temp, 'hum':hum })
 
