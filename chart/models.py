@@ -1,21 +1,41 @@
-# import time
+
 from django.db import models
 import datetime, pytz
 from django.utils import timezone
 import pandas as pd
+
+'''
+Location where the measurements are being taken. Currently only locations on Princeton University's campus are included. 
+name: the location's name eg Frist.
+num: a redundant non-unique identifier. important for sensors not yet assigned locations
+
+'''
 class Location(models.Model):
     name = models.CharField(default="Spelman 17", max_length=20)
     num = models.IntegerField(default=0, max_length=2)
 
+'''
+These are the registrations for the sensors we are using
+num: the unique identifier assigned to the  specific sensor(can change but preferrably should not change)
+location: where the sensor is located(can be changed when sensor is moved)
+
+allows access to where the sensor is located. 
+    returns string because the value should not change when the sensor is moved. ie, a measurement taken at Frist
+    should always be associated with Frist
+'''
 class Sensor(models.Model):
     num = models.IntegerField(unique = True)
     location = models.ForeignKey(to=Location,null = True, blank = True, on_delete=callable)
+
 
     @classmethod
     def find_location(cls, s_id):
         obj = cls.objects.filter(num = s_id).first()
         return obj.location.name
 
+'''
+Contains measurements(CO2, humidity,) and information associated with the sensors(where, when)
+'''
 class Measurements(models.Model):
     date = models.DateField(default=datetime.datetime.now().astimezone(pytz.timezone("America/New_York")))
     time = models.TimeField(default=datetime.datetime.now().astimezone(pytz.timezone("America/New_York")))
@@ -32,6 +52,7 @@ class Measurements(models.Model):
         data = []
         for obj in objects:
             date = pd.to_datetime(obj.date.strftime("%m/%-d/%Y,") +' '+obj.time.strftime("%H:%M:%S"), utc=True).astimezone(pytz.timezone("America/New_York"))
+            date = date + datetime.timedelta(hours=5)
             if date >= curr_time:
                 data.append(obj)  
 
