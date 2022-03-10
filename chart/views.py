@@ -3,15 +3,25 @@ from django.shortcuts import render
 from django.shortcuts import render
 # from django.db import models
 from django.core import serializers
-from .models import Measurements #, Temp, CO2, Hum
+from .models import Measurements, Sensor #, Temp, CO2, Hum
 from django.http import JsonResponse
-import datetime
+import datetime, pytz
 import csv
 import plotly.express as px
 from plotly.offline import plot
 from plotly.graph_objs import Scatter
 import pandas as pd
+'''
 
+FUTURE CONSIDERATIONS
+- have global variables such as time period, specific regions(Frist etc)
+- have a class for the sensors
+    the user selects whether they want to view all sensors or sensors in specific regions
+
+ANALYSIS OF INPUT FROM MULTIPLE SENSORS
+    - Use groupby and then take min max, average per day.
+    - maybe take hourly average
+'''
 # def initialize_db():
     
 #     file = 'chart/files/feeds.csv'
@@ -121,12 +131,14 @@ def temperature(request, today = False, yesterday = False, two_hour = False):
     print(len(gas), len(label))
     return render(request, 'graph.html', {'graph_co': graph_co, 'graph': graph_2, 'label':label,'gas':gas, 'temp':temp, 'hum':hum })
 
-def update(request, co,temp,hum):
-    now = datetime.datetime.now().strftime("%m/%-d/%Y, %H:%M:%S")
-    hum = float(hum)/100
+def update(request, co,temp,hum, sensor_id):
+    print( co,temp,hum, sensor_id)
+    loc = Sensor.find_location(int(sensor_id))
+    now = datetime.datetime.now().astimezone(pytz.timezone("America/New_York")) #.strftime("%m/%-d/%Y, %H:%M:%S")
+    hum = float(int(hum))/100
     temp = float(temp)/100
     co = int(co)
-    new_measurement = Measurements(co2 = co, hum = hum, temp = temp)
+    new_measurement = Measurements(date = now.date(),time = now.time(), co2 = co, hum = hum, temp = temp, loc = loc)
     new_measurement.save()
 
     return render(request,'graph.html' )

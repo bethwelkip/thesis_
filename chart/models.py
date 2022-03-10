@@ -1,8 +1,21 @@
 # import time
+from tkinter import CASCADE
 from django.db import models
 import datetime, pytz
 from django.utils import timezone
 import pandas as pd
+class Location(models.Model):
+    name = models.CharField(default="Spelman 17", max_length=20)
+    num = models.IntegerField(default=0, max_length=2)
+
+class Sensor(models.Model):
+    num = models.IntegerField(unique = True)
+    location = models.ForeignKey(to=Location,null = True, blank = True, on_delete=callable)
+
+    @classmethod
+    def find_location(cls, s_id):
+        obj = cls.objects.filter(num = s_id).first()
+        return obj.location.name
 
 class Measurements(models.Model):
     date = models.DateField(default=datetime.datetime.now().astimezone(pytz.timezone("America/New_York")))
@@ -10,6 +23,7 @@ class Measurements(models.Model):
     temp = models.DecimalField(max_digits=4, decimal_places=1)
     co2 = models.DecimalField(max_digits=5, decimal_places=1)
     hum = models.DecimalField(max_digits=3, decimal_places=1)
+    loc = models.CharField(max_length = 20, null = True, blank = True)
 
     @classmethod
     def get_two_hour(cls):
@@ -44,6 +58,7 @@ class Measurements(models.Model):
                 data.append(obj)  
         print("--------------------", len(data))      
         return data
+
     @classmethod
     def get_all_time(cls):
         return list(cls.objects.all())
