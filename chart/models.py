@@ -1,5 +1,4 @@
 # import time
-from tkinter import CASCADE
 from django.db import models
 import datetime, pytz
 from django.utils import timezone
