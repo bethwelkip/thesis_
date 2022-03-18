@@ -103,7 +103,6 @@ def temperature(request, today = False, yesterday = False, two_hour = False):
     for i, dat in enumerate(raw_data[:min(len(raw_data), 100)]):
         lab = pd.to_datetime(dat.date.strftime("%m/%-d/%Y,") +' '+dat.time.strftime("%H:%M:%S"))+ datetime.timedelta(days=j)
         #dat.date + datetime.timedelta(days=j)
-        print(pd.to_datetime(dat.date.strftime("%m/%-d/%Y,") +' '+dat.time.strftime("%H:%M:%S")))
         hum.append(float(dat.hum))
         gas.append(float(dat.co2))
         label.append(lab)#""+str(j)+dat.date.strftime("%m/%-d/%Y,")+""+dat.time.strftime("%H:%M:%S"))
@@ -113,7 +112,7 @@ def temperature(request, today = False, yesterday = False, two_hour = False):
     h = pd.Series(hum)
     df += pd.Series(hum)
     df['temp'] = pd.Series(temp)
-    print(df)
+
     graph_2 = plot([Scatter(x = label, y = hum,
                         mode='lines', name='humidity',
                         opacity=0.8, marker_color='blue'), Scatter(x = label, y = temp,

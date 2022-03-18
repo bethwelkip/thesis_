@@ -75,8 +75,7 @@ class Measurements(models.Model):
         for obj in objects:
             date = pd.to_datetime(obj.date.strftime("%m/%-d/%Y,") +' '+obj.time.strftime("%H:%M:%S"), utc=True).astimezone(pytz.timezone("America/New_York"))
             if date.date() == curr_time.date():
-                data.append(obj)  
-        print("--------------------", len(data))      
+                data.append(obj)      
         return data
 
     @classmethod
