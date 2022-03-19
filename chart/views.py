@@ -132,6 +132,8 @@ def temperature(request, today = False, yesterday = False, two_hour = False):
 
 def update(request, co,temp,hum, sensor_id):
     print( co,temp,hum, sensor_id)
+    if request.method == "GET":
+        print("REQUEST GET:", request.GET)
     loc = Sensor.find_location(int(sensor_id))
     now = datetime.datetime.now().astimezone(pytz.timezone("America/New_York")) #.strftime("%m/%-d/%Y, %H:%M:%S")
     hum = float(int(hum))/100
@@ -139,6 +141,11 @@ def update(request, co,temp,hum, sensor_id):
     co = int(co)
     new_measurement = Measurements(date = now.date(),time = now.time(), co2 = co, hum = hum, temp = temp, loc = loc)
     new_measurement.save()
+
+    return render(request,'graph.html' )
+def updater(request):
+    if request.method == "POST":
+        print("REQUEST GET: ", request.POST)
 
     return render(request,'graph.html' )
    

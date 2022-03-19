@@ -8,4 +8,5 @@ urlpatterns = [
     url(r'^$', views.temperature, name='home'), 
     path(r'^<int:val>$', views.specific, name = 'specific'),
     path('update/<str:co>/<str:temp>/<str:hum>/<str:sensor_id>/', views.update),
+    path('updater/', views.updater),
 ]
