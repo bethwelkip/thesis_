@@ -39,9 +39,9 @@ Contains measurements(CO2, humidity,) and information associated with the sensor
 class Measurements(models.Model):
     date = models.DateField(default=datetime.datetime.now().astimezone(pytz.timezone("America/New_York")))
     time = models.TimeField(default=datetime.datetime.now().astimezone(pytz.timezone("America/New_York")))
-    temp = models.DecimalField(max_digits=4, decimal_places=1)
+    temp = models.DecimalField(default=25.0, max_digits=4, decimal_places=1)
     co2 = models.DecimalField(max_digits=5, decimal_places=1)
-    hum = models.DecimalField(max_digits=3, decimal_places=1)
+    hum = models.DecimalField(default=50.0, max_digits=3, decimal_places=1)
     loc = models.CharField(max_length = 20, null = True, blank = True)
 
     @classmethod

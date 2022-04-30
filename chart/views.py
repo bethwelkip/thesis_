@@ -11,6 +11,8 @@ import plotly.express as px
 from plotly.offline import plot
 from plotly.graph_objs import Scatter
 import pandas as pd
+import requests, json
+from decouple import config, Csv
 '''
 
 FUTURE CONSIDERATIONS
@@ -22,28 +24,32 @@ ANALYSIS OF INPUT FROM MULTIPLE SENSORS
     - Use groupby and then take min max, average per day.
     - maybe take hourly average
 '''
-# def initialize_db():
-    
-#     file = 'chart/files/feeds.csv'
-#     print(file)
-#     with open(file, 'r') as file:
-#         reader = csv.reader(file)
-#         i = 0
-#         for r in reader:
-#             if r[0] == 'created_at':
-#                 continue
-#             time, temp, co, hum = r[0], r[2],r[3],r[4]
-#             if len(temp) > 0:
-#                 t = Temp( temp=temp)
-#                 t.save()
+def add_to_table(data):
+    pass
 
-#             if len(co) > 0:
-#                 c = CO2( co2=co)
-#                 c.save()
+def get_blynk_data():
+    tokens = ["mae_3","mae_4", "mae_5","mae_6", "mae_7","mae_10","mae_11","mae_12","mae_13"]
+    df_co =[]
+    df_temp =[]
+    for token in tokens:
+        url = requests.get(f'https://blynk.cloud/external/api/data/get?token={config(token)}&period=MONTH&granularityType=MINUTE&sourceType=AVG&tzName=America/New_York&format=ISO_SIMPLE&sendEvents=true&output=JSON')
+        raw_data = []
+        if "error" not in json.loads(url.text).keys():
+            raw_data = json.loads(url.text)['data']
+        if raw_data:
+            for dat in raw_data:
+                if dat["data_stream_name"] in ["Button",'LCD']:
+                    if dat["value"] > 5000:
+                        dat["value"] = 999.99
+                    df_co.append([dat["ts"], dat["value"], token])
+                elif dat["data_stream_name"] ==["Random Value Send",'Pressao de ar comprimido']:
+                    df_temp.append([dat["ts"], dat["value"], token])
+    df_co = pd.DataFrame(df_co[:])
+    df_co.columns = ["Time", "CO2 Concentration", "Sensor"]
+    df_temp = pd.DataFrame(df_temp[:])
 
-#             if len(hum) > 0:
-#                 h = Hum( hum=hum)
-#                 h.save()
+    return df_co
+
 def generate_csv():
     file = '/Users/bethwelkiplimo/desktop/mae345_2022/feeds.csv'
     print(file)
@@ -84,6 +90,8 @@ def specific(request, val):
     return temperature(request,today, yesterday, two_hour)
 
 def temperature(request, today = False, yesterday = False, two_hour = False):
+    data = get_blynk_data()
+    print(data.head())
     print("two hour: ", two_hour, "yesterday: ", yesterday, "today: ", today)
     if today:
         raw_data = Measurements.get_today()
@@ -112,15 +120,23 @@ def temperature(request, today = False, yesterday = False, two_hour = False):
     h = pd.Series(hum)
     df += pd.Series(hum)
     df['temp'] = pd.Series(temp)
+    print("\n\n\n", data[data.Sensor == "mae_3"]["CO2 Concentration"])
 
-    graph_2 = plot([Scatter(x = label, y = hum,
-                        mode='lines', name='humidity',
-                        opacity=0.8, marker_color='blue'), Scatter(x = label, y = temp,
-                        mode='lines', name='temperature',
-                        opacity=0.8, marker_color='red')],
+    graph_co = plot([Scatter(x = data["Time"], y = data[data.Sensor == "mae_3"]["CO2 Concentration"],
+                        mode='lines', name='sensor 3',
+                        opacity=0.8), 
+                    Scatter(x = data["Time"], y = data[data["Sensor"]=="mae_4"]["CO2 Concentration"],
+                        mode='lines', name='sensor 4',
+                        opacity=0.8), 
+                    Scatter(x = data["Time"], y = data[data["Sensor"]=="mae_5"]["CO2 Concentration"],
+                        mode='lines', name='sensor 5',
+                        opacity=0.8), 
+                    Scatter(x = data["Time"], y = data[data["Sensor"]=="mae_6"]["CO2 Concentration"],
+                        mode='lines', name='sensor 6',
+                        opacity=0.8)],
                output_type='div')
 
-    graph_co = plot([Scatter(x = label, y = gas,
+    graph_2 = plot([Scatter(x = label, y = gas,
                         mode='lines', name='Carbon(IV)Oxide (CO_2)',
                         opacity=0.8, marker_color='green', showlegend = True)],output_type='div')
 
@@ -144,8 +160,10 @@ def update(request, co,temp,hum, sensor_id):
 
     return render(request,'graph.html' )
 def updater(request):
+    print(request)
     if request.method == "POST":
         print("REQUEST GET: ", request.POST)
-
+    print("Here")
     return render(request,'graph.html' )
    
+
