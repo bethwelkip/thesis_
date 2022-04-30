@@ -13,6 +13,7 @@ from plotly.graph_objs import Scatter
 import pandas as pd
 import requests, json
 from decouple import config, Csv
+from django.views.decorators.csrf import csrf_exempt
 '''
 
 FUTURE CONSIDERATIONS
@@ -36,6 +37,9 @@ def get_blynk_data():
         raw_data = []
         if "error" not in json.loads(url.text).keys():
             raw_data = json.loads(url.text)['data']
+        else:
+            print(json.loads(url.text)['error']['message'])
+
         if raw_data:
             for dat in raw_data:
                 if dat["data_stream_name"] in ["Button",'LCD']:
@@ -44,6 +48,9 @@ def get_blynk_data():
                     df_co.append([dat["ts"], dat["value"], token])
                 elif dat["data_stream_name"] ==["Random Value Send",'Pressao de ar comprimido']:
                     df_temp.append([dat["ts"], dat["value"], token])
+    if len(df_co) < 1:
+        return []
+
     df_co = pd.DataFrame(df_co[:])
     df_co.columns = ["Time", "CO2 Concentration", "Sensor"]
     df_temp = pd.DataFrame(df_temp[:])
@@ -90,8 +97,7 @@ def specific(request, val):
     return temperature(request,today, yesterday, two_hour)
 
 def temperature(request, today = False, yesterday = False, two_hour = False):
-    data = get_blynk_data()
-    print(data.head())
+    data = [] #get_blynk_data()
     print("two hour: ", two_hour, "yesterday: ", yesterday, "today: ", today)
     if today:
         raw_data = Measurements.get_today()
@@ -108,21 +114,21 @@ def temperature(request, today = False, yesterday = False, two_hour = False):
     label, gas, temp, hum = [],[],[],[]
     print(len(raw_data))
     j = 0
-    for i, dat in enumerate(raw_data[:min(len(raw_data), 100)]):
+    for i, dat in enumerate(raw_data[:]):
         lab = pd.to_datetime(dat.date.strftime("%m/%-d/%Y,") +' '+dat.time.strftime("%H:%M:%S"))+ datetime.timedelta(days=j)
         #dat.date + datetime.timedelta(days=j)
         hum.append(float(dat.hum))
         gas.append(float(dat.co2))
         label.append(lab)#""+str(j)+dat.date.strftime("%m/%-d/%Y,")+""+dat.time.strftime("%H:%M:%S"))
         temp.append(float(dat.temp))
-        j += 1
+        j += 0
     df = pd.DataFrame(gas, index = label)
     h = pd.Series(hum)
     df += pd.Series(hum)
     df['temp'] = pd.Series(temp)
-    print("\n\n\n", data[data.Sensor == "mae_3"]["CO2 Concentration"])
 
-    graph_co = plot([Scatter(x = data["Time"], y = data[data.Sensor == "mae_3"]["CO2 Concentration"],
+    if len(data)>0:
+        graph_2 = plot([Scatter(x = data["Time"], y = data[data.Sensor == "mae_3"]["CO2 Concentration"],
                         mode='lines', name='sensor 3',
                         opacity=0.8), 
                     Scatter(x = data["Time"], y = data[data["Sensor"]=="mae_4"]["CO2 Concentration"],
@@ -135,8 +141,10 @@ def temperature(request, today = False, yesterday = False, two_hour = False):
                         mode='lines', name='sensor 6',
                         opacity=0.8)],
                output_type='div')
+    else:
+        graph_2 = None
 
-    graph_2 = plot([Scatter(x = label, y = gas,
+    graph_co = plot([Scatter(x = label, y = gas,
                         mode='lines', name='Carbon(IV)Oxide (CO_2)',
                         opacity=0.8, marker_color='green', showlegend = True)],output_type='div')
 
@@ -159,11 +167,19 @@ def update(request, co,temp,hum, sensor_id):
     new_measurement.save()
 
     return render(request,'graph.html' )
+
+@csrf_exempt
 def updater(request):
     print(request)
     if request.method == "POST":
-        print("REQUEST GET: ", request.POST)
-    print("Here")
+        data = list(request.POST.keys())[0].split("=")
+        print(request.POST.keys())
+        co = data[1]
+        print(co)
+        co = int(co)
+        now = datetime.datetime.now().astimezone(pytz.timezone("America/New_York")) #.strftime("%m/%-d/%Y, %H:%M:%S")
+        new_measurement = Measurements(date = now.date(),time = now.time(), co2 = co)
+        new_measurement.save()
     return render(request,'graph.html' )
    
 
